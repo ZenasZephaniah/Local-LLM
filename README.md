@@ -167,6 +167,19 @@ CMakeLists.txt
 setup.sh   one-command fetch + build
 ```
 
+## GPU Offload Limitations
+
+GPU offloading is currently disabled by default (`n_gpu_layers = 0` in
+`src/app.cpp`), keeping tensors host-resident so activation and attention
+reads in the Instrumentor are cheap memcpy's rather than device-to-host
+transfers. 
+
+This was chosen as the optimal path for a lightweight telemetry tool and avoids
+pipeline-stall bugs (synchronous `ggml_backend_tensor_get` calls inside the 
+eval callback would stall a GPU pipeline if offload were enabled). Wiring GPU 
+offload with asynchronous telemetry reads is documented as a future area of 
+development.
+
 ## Version notes
 
 This targets a recent `llama.cpp`. If your checkout is older, a few API names
